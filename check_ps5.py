@@ -42,10 +42,41 @@ USER_AGENT = (
 )
 
 
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "").strip()
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+
+
+def send_telegram(title: str, message: str, url: str | None) -> None:
+    text = f"<b>{title}</b>\n{message}"
+    if url:
+        text += f"\n\n{url}"
+    data = json.dumps({
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": text,
+        "parse_mode": "HTML",
+        "disable_web_page_preview": False,
+    }).encode("utf-8")
+    req = urllib.request.Request(
+        f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+        data=data,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            print(f"  telegram-status: {resp.status}")
+    except Exception as e:
+        print(f"  Telegram-melding mislukt: {e}")
+
+
 def notify(title: str, message: str, url: str | None = None, priority: str = "default", tags: str = "") -> None:
     print(f"[MELDING] {title}: {message}")
+    if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
+        send_telegram(title, message, url)
+    else:
+        print("  (Telegram niet ingesteld)")
     if not NTFY_TOPIC:
-        print("  (NTFY_TOPIC niet ingesteld, melding niet verstuurd)")
+        print("  (NTFY_TOPIC niet ingesteld, ntfy-melding niet verstuurd)")
         return
     headers = {"Title": title.encode("utf-8"), "Priority": priority}
     if url:
