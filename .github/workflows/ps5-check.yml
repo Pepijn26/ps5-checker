@@ -1,0 +1,51 @@
+name: PS5 refurbished checker
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      test:
+        description: "Alleen een testmelding sturen?"
+        type: boolean
+        default: false
+
+concurrency:
+  group: ps5-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Playwright installeren
+        run: |
+          pip install playwright==1.48.0
+          python -m playwright install --with-deps chromium
+
+      - name: Vorige status ophalen
+        uses: actions/cache/restore@v4
+        with:
+          path: state.json
+          key: ps5-state-${{ github.run_id }}
+          restore-keys: ps5-state-
+
+      - name: Voorraad controleren
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          TEST_NOTIFICATION: ${{ github.event.inputs.test || 'false' }}
+        run: python check_ps5.py
+
+      - name: Status bewaren
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: state.json
+          key: ps5-state-${{ github.run_id }}
