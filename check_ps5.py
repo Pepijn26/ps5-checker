@@ -20,6 +20,8 @@ COLLECTION_URL = "https://www.playstation.com/nl-nl/collections/certified-refurb
 # Vaste lijst als vangnet, voor het geval de overzichtspagina niet laadt.
 FALLBACK_URLS = [
     "https://www.playstation.com/nl-nl/ps5/certified-refurbished-ps5-slim/",
+    "https://www.playstation.com/nl-nl/ps5/certified-refurbished/product/PSD001-PSDE01840_63-PS5GRADEDCEC7XZE/",
+    "https://www.playstation.com/nl-nl/ps5/certified-refurbished-ps5-slim-digital-edition/product/PSD001-PSDE00234_23-PS5GRADEDDMBTOTE/",
 ]
 
 NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "").strip()
