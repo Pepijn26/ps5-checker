@@ -40,6 +40,8 @@ jobs:
       - name: Voorraad controleren
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TEST_NOTIFICATION: ${{ github.event.inputs.test || 'false' }}
         run: python check_ps5.py
 
